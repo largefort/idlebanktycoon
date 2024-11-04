@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idle Bank Tycoon</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        p {
+            font-size: 18px;
+        }
+        #money {
+            font-weight: bold;
+            color: #27ae60;
+        }
+        #bankLevel, #income, #managers, #investments, #realEstate, #loans, #advertisements {
+            font-weight: bold;
+            color: #8e44ad;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            background: #ecf0f1;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Idle Bank Tycoon</h1>
+        <p>Money: $<span id="money">0</span></p>
+        <button id="collectMoney">Collect Money</button>
+        <button id="upgrade">Upgrade Bank ($100)</button>
+        <button id="hireManager">Hire Manager ($500)</button>
+        <button id="invest">Invest in Stocks ($1000)</button>
+        <button id="realEstate">Invest in Real Estate ($5000)</button>
+        <button id="loan">Grant Loan ($10000)</button>
+        <button id="advertise">Run Advertisement Campaign ($20000)</button>
+        <p>Bank Level: <span id="bankLevel">1</span></p>
+        <p>Income per second: $<span id="income">1</span></p>
+        <p>Managers: <span id="managers">0</span></p>
+        <p>Investments: <span id="investments">0</span></p>
+        <p>Real Estate Holdings: <span id="realEstate">0</span></p>
+        <p>Loans Given: <span id="loans">0</span></p>
+        <p>Advertisements Run: <span id="advertisements">0</span></p>
+        <p>Achievements:</p>
+        <ul id="achievements"></ul>
+    </div>
+    <script>
+        let money = 0;
+        let bankLevel = 1;
+        let incomePerSecond = 1;
+        let managers = 0;
+        let investments = 0;
+        let realEstate = 0;
+        let loans = 0;
+        let advertisements = 0;
+        let achievements = [];
+
+        // Load game state from localStorage
+        function loadGame() {
+            if (localStorage.getItem('idleBankTycoonSave')) {
+                const save = JSON.parse(localStorage.getItem('idleBankTycoonSave'));
+                money = save.money;
+                bankLevel = save.bankLevel;
+                incomePerSecond = save.incomePerSecond;
+                managers = save.managers;
+                investments = save.investments;
+                realEstate = save.realEstate;
+                loans = save.loans;
+                advertisements = save.advertisements;
+                achievements = save.achievements;
+                updateUI();
+            }
+        }
+
+        // Save game state to localStorage
+        function saveGame() {
+            const save = {
+                money,
+                bankLevel,
+                incomePerSecond,
+                managers,
+                investments,
+                realEstate,
+                loans,
+                advertisements,
+                achievements
+            };
+            localStorage.setItem('idleBankTycoonSave', JSON.stringify(save));
+        }
+
+        document.getElementById('collectMoney').addEventListener('click', () => {
+            money += incomePerSecond;
+            checkAchievements();
+            updateUI();
+        });
+
+        document.getElementById('upgrade').addEventListener('click', () => {
+            if (money >= 100) {
+                money -= 100;
+                bankLevel++;
+                incomePerSecond = bankLevel * 2;
+                checkAchievements();
+                updateUI();
+            }
+        });
+
+        document.getElementById('hireManager').addEventListener('click', () => {
+            if (money >= 500) {
+                money -= 500;
+                managers++;
+                incomePerSecond += 5;
+                checkAchievements();
+                updateUI();
+            }
+        });
+
+        document.getElementById('invest').addEventListener('click', () => {
+            if (money >= 1000) {
+                money -= 1000;
+                investments++;
+                incomePerSecond += 10;
+                checkAchievements();
+                updateUI();
+            }
+        });
+
+        document.getElementById('realEstate').addEventListener('click', () => {
+            if (money >= 5000) {
+                money -= 5000;
+                realEstate++;
+                incomePerSecond += 50;
+                checkAchievements();
+                updateUI();
+            }
+        });
+
+        document.getElementById('loan').addEventListener('click', () => {
+            if (money >= 10000) {
+                money -= 10000;
+                loans++;
+                incomePerSecond += 100;
+                checkAchievements();
+                updateUI();
+            }
+        });
+
+        document.getElementById('advertise').addEventListener('click', () => {
+            if (money >= 20000) {
+                money -= 20000;
+                advertisements++;
+                incomePerSecond += 200;
+                checkAchievements();
+                updateUI();
+            }
+        });
+
+        function updateUI() {
+            document.getElementById('money').textContent = money;
+            document.getElementById('bankLevel').textContent = bankLevel;
+            document.getElementById('income').textContent = incomePerSecond;
+            document.getElementById('managers').textContent = managers;
+            document.getElementById('investments').textContent = investments;
+            document.getElementById('realEstate').textContent = realEstate;
+            document.getElementById('loans').textContent = loans;
+            document.getElementById('advertisements').textContent = advertisements;
+            document.getElementById('achievements').innerHTML = achievements.map(ach => `<li>${ach}</li>`).join('');
+        }
+
+        function checkAchievements() {
+            if (money >= 1000 && !achievements.includes("First Thousand!")) {
+                achievements.push("First Thousand!");
+            }
+            if (bankLevel >= 5 && !achievements.includes("Bank Level 5!")) {
+                achievements.push("Bank Level 5!");
+            }
+            if (managers >= 1 && !achievements.includes("First Manager Hired!")) {
+                achievements.push("First Manager Hired!");
+            }
+            if (investments >= 1 && !achievements.includes("First Investment Made!")) {
+                achievements.push("First Investment Made!");
+            }
+            if (realEstate >= 1 && !achievements.includes("First Real Estate Purchased!")) {
+                achievements.push("First Real Estate Purchased!");
+            }
+            if (loans >= 1 && !achievements.includes("First Loan Granted!")) {
+                achievements.push("First Loan Granted!");
+            }
+            if (advertisements >= 1 && !achievements.includes("First Advertisement Run!")) {
+                achievements.push("First Advertisement Run!");
+            }
+            if (money >= 5000 && !achievements.includes("Five Thousand Rich!")) {
+                achievements.push("Five Thousand Rich!");
+            }
+            if (money >= 10000 && !achievements.includes("Ten Thousand Dollars!")) {
+                achievements.push("Ten Thousand Dollars!");
+            }
+            if (bankLevel >= 10 && !achievements.includes("Bank Level 10!")) {
+                achievements.push("Bank Level 10!");
+            }
+            if (managers >= 5 && !achievements.includes("Five Managers Hired!")) {
+                achievements.push("Five Managers Hired!");
+            }
+            if (investments >= 5 && !achievements.includes("Five Investments Made!")) {
+                achievements.push("Five Investments Made!");
+            }
+            if (realEstate >= 5 && !achievements.includes("Five Real Estates Purchased!")) {
+                achievements.push("Five Real Estates Purchased!");
+            }
+            if (loans >= 5 && !achievements.includes("Five Loans Granted!")) {
+                achievements.push("Five Loans Granted!");
+            }
+            if (advertisements >= 5 && !achievements.includes("Five Advertisements Run!")) {
+                achievements.push("Five Advertisements Run!");
+            }
+            if (money >= 50000 && !achievements.includes("Fifty Thousand Dollars!")) {
+                achievements.push("Fifty Thousand Dollars!");
+            }
+            if (money >= 100000 && !achievements.includes("One Hundred Thousand Dollars!")) {
+                achievements.push("One Hundred Thousand Dollars!");
+            }
+            if (bankLevel >= 20 && !achievements.includes("Bank Level 20!")) {
+                achievements.push("Bank Level 20!");
+            }
+            if (managers >= 10 && !achievements.includes("Ten Managers Hired!")) {
+                achievements.push("Ten Managers Hired!");
+            }
+            if (investments >= 10 && !achievements.includes("Ten Investments Made!")) {
+                achievements.push("Ten Investments Made!");
+            }
+            if (realEstate >= 10 && !achievements.includes("Ten Real Estates Purchased!")) {
+                achievements.push("Ten Real Estates Purchased!");
+            }
+            if (loans >= 10 && !achievements.includes("Ten Loans Granted!")) {
+                achievements.push("Ten Loans Granted!");
+            }
+            if (advertisements >= 10 && !achievements.includes("Ten Advertisements Run!")) {
+                achievements.push("Ten Advertisements Run!");
+            }
+            if (incomePerSecond >= 100 && !achievements.includes("Income of 100 per Second!")) {
+                achievements.push("Income of 100 per Second!");
+            }
+            if (incomePerSecond >= 500 && !achievements.includes("Income of 500 per Second!")) {
+                achievements.push("Income of 500 per Second!");
+            }
+            if (incomePerSecond >= 1000 && !achievements.includes("Income of 1000 per Second!")) {
+                achievements.push("Income of 1000 per Second!");
+            }
+            if (money >= 1000000 && !achievements.includes("Millionaire!")) {
+                achievements.push("Millionaire!");
+            }
+            if (managers >= 20 && !achievements.includes("Twenty Managers Hired!")) {
+                achievements.push("Twenty Managers Hired!");
+            }
+            if (investments >= 20 && !achievements.includes("Twenty Investments Made!")) {
+                achievements.push("Twenty Investments Made!");
+            }
+            if (realEstate >= 20 && !achievements.includes("Twenty Real Estates Purchased!")) {
+                achievements.push("Twenty Real Estates Purchased!");
+            }
+            if (loans >= 20 && !achievements.includes("Twenty Loans Granted!")) {
+                achievements.push("Twenty Loans Granted!");
+            }
+            if (advertisements >= 20 && !achievements.includes("Twenty Advertisements Run!")) {
+                achievements.push("Twenty Advertisements Run!");
+            }
+            if (money >= 10000000 && !achievements.includes("Ten Million Dollars!")) {
+                achievements.push("Ten Million Dollars!");
+            }
+            if (incomePerSecond >= 5000 && !achievements.includes("Income of 5000 per Second!")) {
+                achievements.push("Income of 5000 per Second!");
+            }
+        }
+
+        // Passive income per second
+        setInterval(() => {
+            money += incomePerSecond;
+            checkAchievements();
+            updateUI();
+        }, 1000);
+
+        // Auto-save every 30 seconds
+        setInterval(() => {
+            saveGame();
+        }, 30000);
+
+        // Load the game on startup
+        loadGame();
+    </script>
+</body>
+</html>
